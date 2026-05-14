@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SGE.Aplicacion.Tramites.DTOs
 {
-    internal class AgregarTramiteRequest
+    public record AgregarTramiteRequest
     {
         public Guid ExpedienteId { get; set; }
 
