@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using SGE.Aplicacion.Autorizacion;
-using SGE.Aplicacion.Tramites.DTOs;
+// using SGE.Aplicacion.Tramites.DTOs;
 using System.Linq;
 using SGE.Dominio.Tramites;
 namespace SGE.Aplicacion.Tramites

@@ -4,7 +4,6 @@ using System.Text;
 
 using SGE.Aplicacion.Autorizacion;
 using SGE.Aplicacion.Expedientes;
-using SGE.Aplicacion.Tramites.DTOs;
 
 namespace SGE.Aplicacion.Tramites
 {

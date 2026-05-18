@@ -32,7 +32,7 @@ public class ModificarCaratulaExpedienteUseCase
         }
 
         expediente.ModificarCaratula(new Caratula(request.NuevaCaratula),  request.IdUsuario);
-
+        
         _expedienteRepository.Modificar (expediente);
 
         return new ModificarCaratulaExpedienteResponse(expediente.Id);

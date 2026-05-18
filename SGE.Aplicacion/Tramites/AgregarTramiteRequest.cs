@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SGE.Aplicacion.Tramites.DTOs
+namespace SGE.Aplicacion.Tramites
 {
     public record AgregarTramiteRequest
     {
@@ -11,7 +11,7 @@ namespace SGE.Aplicacion.Tramites.DTOs
 
         public EtiquetaTramite Etiqueta { get; set; }
 
-        public string Contenido { get; set; }
+        public string? Contenido { get; set; }
 
         public Guid UsuarioId { get; set; }
     }
