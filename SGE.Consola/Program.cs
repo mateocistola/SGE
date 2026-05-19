@@ -18,8 +18,7 @@ ITramiteRepository tramiteRepository =
 IAutorizacionService autorizacionService =
     new AutorizacionProvisionalService();
 
-var actualizacionEstadoExpedienteService =
-    new ActualizacionEstadoExpedienteService(
+var actualizacionEstadoExpedienteService = new ActualizacionEstadoExpedienteService(
         expedienteRepository,
         tramiteRepository
     );
@@ -75,7 +74,7 @@ var eliminarTramiteUseCase = new EliminarTramiteUseCase(
     actualizacionEstadoExpedienteService
 );
 
-Guid idUsuario = Guid.Parse("11111111-1111-1111-1111-111111111111");
+Guid idUsuario = Guid.NewGuid();
 
 const int IntentosMaximos = 5;
 
@@ -183,7 +182,7 @@ void MostrarMenu()
 {
     Console.WriteLine("=== SGE - Sistema de Gestión de Expedientes ===");
     Console.WriteLine();
-    Console.WriteLine("Usuario de prueba: Usuario 1");
+    Console.WriteLine("Usuario de prueba: " + idUsuario.ToString());
     Console.WriteLine();
     Console.WriteLine("1. Crear expediente");
     Console.WriteLine("2. Listar expedientes");
@@ -466,6 +465,7 @@ void EliminarTramite()
         Console.WriteLine("Trámite eliminado correctamente.");
     }
 }
+
 
 void ProbarErrorCaratulaVacia()
 {
