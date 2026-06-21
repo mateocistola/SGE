@@ -16,8 +16,8 @@ namespace SGE.Aplicacion.Tramites
         private readonly IAutorizacionService _autorizacionService;
 
         private readonly ActualizacionEstadoExpedienteService _actualizacionEstadoService;    
-
-        public ModificarTramiteUseCase(ITramiteRepository tramiteRepository, IExpedienteRepository expedienteRepository, IAutorizacionService autorizacionService, ActualizacionEstadoExpedienteService actualizacionEstadoService)
+        private readonly IUnidadDeTrabajo _unidadDeTrabajo;
+        public ModificarTramiteUseCase(ITramiteRepository tramiteRepository, IExpedienteRepository expedienteRepository, IAutorizacionService autorizacionService, ActualizacionEstadoExpedienteService actualizacionEstadoService, IUnidadDeTrabajo unidadDeTrabajo)
         {
             _tramiteRepository = tramiteRepository;
 
@@ -26,6 +26,7 @@ namespace SGE.Aplicacion.Tramites
             _autorizacionService = autorizacionService;
 
             _actualizacionEstadoService = actualizacionEstadoService;    
+            _unidadDeTrabajo = unidadDeTrabajo;
         }
 
         public ModificarTramiteResponse Ejecutar(ModificarTramiteRequest request)
@@ -42,6 +43,7 @@ namespace SGE.Aplicacion.Tramites
             }
             tramite.ModificarContenido(new ContenidoTramite(request.Contenido), request.UsuarioId);
             _tramiteRepository.Modificar(tramite);
+            _unidadDeTrabajo.Guardar();
             return new ModificarTramiteResponse
             {
                 Modificado = true

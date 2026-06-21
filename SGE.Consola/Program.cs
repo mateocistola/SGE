@@ -8,6 +8,11 @@ using SGE.Dominio.Tramites;
 using SGE.Infraestructura.Autorizacion;
 using SGE.Infraestructura.Expedientes;
 using SGE.Infraestructura.Tramites;
+using SGE.Aplicacion.Usuarios;
+using SGE.Infraestructura.Usuarios;
+
+IRepositorioUsuarios usuarioRepository =
+    new RepositorioUsuariosTxt("Datos/usuarios.txt");
 
 IExpedienteRepository expedienteRepository =
     new ExpedienteTxtRepository("Datos/expedientes.txt");
@@ -17,6 +22,9 @@ ITramiteRepository tramiteRepository =
 
 IAutorizacionService autorizacionService =
     new AutorizacionProvisionalService();
+
+var registrarUsuarioUseCase =
+    new RegistrarUsuarioUseCase(usuarioRepository);
 
 var actualizacionEstadoExpedienteService = new ActualizacionEstadoExpedienteService(
         expedienteRepository,
@@ -73,6 +81,15 @@ var eliminarTramiteUseCase = new EliminarTramiteUseCase(
     autorizacionService,
     actualizacionEstadoExpedienteService
 );
+var usuario = registrarUsuarioUseCase.Ejecutar(
+    new RegistrarUsuarioRequest
+    {
+        Nombre = "Mate",
+        CorreoElectronico = "mate@test.com",
+        Contrasena = "1234"
+    });
+
+Console.WriteLine($"Usuario creado: {usuario.UsuarioId}");
 
 Guid idUsuario = Guid.NewGuid();
 

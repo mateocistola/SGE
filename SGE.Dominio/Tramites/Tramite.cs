@@ -4,6 +4,9 @@ namespace SGE.Dominio.Tramites;
 
 public class Tramite
 {
+    private Tramite()
+    {
+    }
     public Guid Id { get; private set; }
     public Guid ExpedienteId { get; private set; }
     public EtiquetaTramite Etiqueta { get; private set; }

@@ -5,6 +5,9 @@ namespace SGE.Dominio.Expedientes;
 
 public class Expediente
 {
+    private Expediente()
+    {
+    }
     public Guid Id { get; private set; }
     public Caratula Caratula { get; private set; }
     public DateTime FechaCreacion { get; private set; }

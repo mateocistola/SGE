@@ -4,7 +4,11 @@ namespace SGE.Dominio.Tramites;
 
 public record class ContenidoTramite
 {
-    public string Valor { get; }
+    public string Valor { get; private set; } = string.Empty;
+
+    private ContenidoTramite()
+    {
+    }
 
     public ContenidoTramite(string valor)
     {

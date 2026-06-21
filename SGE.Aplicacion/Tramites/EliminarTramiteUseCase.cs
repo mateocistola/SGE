@@ -16,8 +16,9 @@ namespace SGE.Aplicacion.Tramites
         private readonly IAutorizacionService _autorizacionService;
 
         private readonly ActualizacionEstadoExpedienteService _actualizacionEstadoService;
+        private readonly IUnidadDeTrabajo _unidadDeTrabajo;
 
-        public EliminarTramiteUseCase(ITramiteRepository tramiteRepository, IExpedienteRepository expedienteRepository, IAutorizacionService autorizacionService, ActualizacionEstadoExpedienteService actualizacionEstadoService)
+        public EliminarTramiteUseCase(ITramiteRepository tramiteRepository, IExpedienteRepository expedienteRepository, IAutorizacionService autorizacionService, ActualizacionEstadoExpedienteService actualizacionEstadoService, IUnidadDeTrabajo unidadDeTrabajo)
         {
             _tramiteRepository = tramiteRepository;
 
@@ -26,6 +27,7 @@ namespace SGE.Aplicacion.Tramites
             _autorizacionService = autorizacionService;
 
             _actualizacionEstadoService = actualizacionEstadoService;
+            _unidadDeTrabajo = unidadDeTrabajo;
             
         }
 
@@ -42,6 +44,7 @@ namespace SGE.Aplicacion.Tramites
             }
             _tramiteRepository.Eliminar(tramite.Id);
             _actualizacionEstadoService.Actualizar(tramite.ExpedienteId, request.UsuarioId);
+            _unidadDeTrabajo.Guardar();
             return new EliminarTramiteResponse
             {
                 Eliminado = true

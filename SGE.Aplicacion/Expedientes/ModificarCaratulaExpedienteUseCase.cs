@@ -9,12 +9,16 @@ public class ModificarCaratulaExpedienteUseCase
 {
     private readonly IExpedienteRepository _expedienteRepository;
     private readonly IAutorizacionService _autorizacionService;
+    private readonly IUnidadDeTrabajo _unidadDeTrabajo;
 
-    public ModificarCaratulaExpedienteUseCase(IExpedienteRepository expedienteRepository, 
-                                              IAutorizacionService autorizacionService)
+    public ModificarCaratulaExpedienteUseCase(
+        IExpedienteRepository expedienteRepository,
+        IAutorizacionService autorizacionService,
+        IUnidadDeTrabajo unidadDeTrabajo)
     {
         _expedienteRepository = expedienteRepository;
         _autorizacionService = autorizacionService;
+        _unidadDeTrabajo = unidadDeTrabajo;
     }
 
     public ModificarCaratulaExpedienteResponse Ejecutar(ModificarCaratulaExpedienteRequest request)
@@ -34,6 +38,7 @@ public class ModificarCaratulaExpedienteUseCase
         expediente.ModificarCaratula(new Caratula(request.NuevaCaratula),  request.IdUsuario);
         
         _expedienteRepository.Modificar (expediente);
+        _unidadDeTrabajo.Guardar();
 
         return new ModificarCaratulaExpedienteResponse(expediente.Id);
     }

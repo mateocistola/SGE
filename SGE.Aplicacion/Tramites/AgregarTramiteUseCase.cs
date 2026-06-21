@@ -18,12 +18,14 @@ public class AgregarTramiteUseCase
     private readonly IAutorizacionService _autorizacionService;
 
     private readonly ActualizacionEstadoExpedienteService _actualizacionEstadoService;
+    private readonly IUnidadDeTrabajo _unidadDeTrabajo;
 
     public AgregarTramiteUseCase(
         ITramiteRepository tramiteRepository,
         IExpedienteRepository expedienteRepository,
         IAutorizacionService autorizacionService,
-        ActualizacionEstadoExpedienteService actualizacionEstadoService)
+        ActualizacionEstadoExpedienteService actualizacionEstadoService,
+                                        IUnidadDeTrabajo unidadDeTrabajo)
     {
         _tramiteRepository = tramiteRepository;
 
@@ -32,6 +34,7 @@ public class AgregarTramiteUseCase
         _autorizacionService = autorizacionService;
 
         _actualizacionEstadoService = actualizacionEstadoService;
+        _unidadDeTrabajo = unidadDeTrabajo;
     }
     public AgregarTramiteResponse Ejecutar(AgregarTramiteRequest request)
     {
@@ -48,6 +51,7 @@ public class AgregarTramiteUseCase
         _tramiteRepository.Agregar(tramite);
         var tramites = _tramiteRepository.ObtenerPorExpedienteId(request.ExpedienteId);
         _actualizacionEstadoService.Actualizar(request.ExpedienteId, request.UsuarioId);
+        _unidadDeTrabajo.Guardar();
         return new AgregarTramiteResponse
         {
             TramiteId = tramite.Id

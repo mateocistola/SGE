@@ -4,7 +4,11 @@ namespace SGE.Dominio.Expedientes;
 
 public record class Caratula
 {
-    public string Valor { get; }
+    public string Valor { get; private set; } = string.Empty;
+
+    private Caratula()
+    {
+    }
 
     public Caratula(string valor)
     {
