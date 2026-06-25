@@ -89,4 +89,8 @@ public class Usuario
     {
         EsAdministrador = true;
     }
+    public bool PoseeElPermiso(Permiso permiso)
+    {
+        return EsAdministrador || _permisos.Contains(permiso);
+    }
 }

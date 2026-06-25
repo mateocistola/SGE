@@ -1,6 +1,7 @@
 ﻿using SGE.Aplicacion.Comun;
 using SGE.Aplicacion.Autorizacion;
 using SGE.Dominio.Expedientes;
+using SGE.Dominio.Usuarios;
 
 namespace SGE.Aplicacion.Expedientes;
 

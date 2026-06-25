@@ -1,66 +1,172 @@
-
 using Microsoft.EntityFrameworkCore;
-using SGE.Aplicacion.Comun;
-using SGE.Aplicacion.Usuarios;
-using SGE.Infraestructura.Persistencia;
-using SGE.Infraestructura.Usuarios;
 using SGE.Aplicacion.Expedientes;
 using SGE.Aplicacion.Tramites;
+using SGE.Aplicacion.Usuarios;
+using SGE.Dominio.Usuarios;
 using SGE.Infraestructura.Expedientes;
+using SGE.Infraestructura.Persistencia;
+using SGE.Infraestructura.Seguridad;
 using SGE.Infraestructura.Tramites;
+using SGE.Infraestructura.Usuarios;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Scalar.AspNetCore;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using SGE.Aplicacion.Autorizacion;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddScoped<ITramiteRepository, TramiteRepository>();
-builder.Services.AddScoped<IExpedienteRepository, ExpedienteRepository>();
-builder.Services.AddScoped<IRepositorioUsuarios, UsuarioRepository>();
-builder.Services.AddScoped<IUnidadDeTrabajo, UnidadDeTrabajo>();
-builder.Services.AddScoped<IRepositorioUsuarios, UsuarioRepository>();
-builder.Services.AddScoped<IUnidadDeTrabajo, UnidadDeTrabajo>();
+
+builder.Services.AddScoped<IAutorizacionService, AutorizacionService>();
+builder.Services.AddScoped<AgregarExpedienteUseCase>();
+builder.Services.AddScoped<AgregarTramiteUseCase>();
+builder.Services.AddScoped<ActualizacionEstadoExpedienteService>();
+builder.Services.AddScoped<ITokenService, JwtTokenService>();
+builder.Services.AddScoped<LoginUseCase>();
+builder.Services.AddScoped<RegistrarUsuarioUseCase>();
+
+var claveJwt = "clave-super-secreta-sge-tp2-2026-minimo-32-caracteres";
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(claveJwt))
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+
 builder.Services.AddOpenApi();
+
 builder.Services.AddDbContext<SgeContext>(options =>
 {
     options.UseSqlite("Data Source=SGE.sqlite");
 });
 
+builder.Services.AddScoped<IHashService, HashService>();
+builder.Services.AddScoped<IRepositorioUsuarios, UsuarioRepository>();
+builder.Services.AddScoped<IExpedienteRepository, ExpedienteRepository>();
+builder.Services.AddScoped<ITramiteRepository, TramiteRepository>();
+builder.Services.AddScoped<IUnidadDeTrabajo, UnidadDeTrabajo>();
+builder.Services.AddScoped<AgregarExpedienteUseCase>();
+builder.Services.AddScoped<IAutorizacionService, AutorizacionService>();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
 }
+
+app.MapPost("/expedientes", [Authorize] (
+    AgregarExpedienteUseCase useCase,
+    CrearExpedienteRequest request,
+    ClaimsPrincipal usuario) =>
+{
+    var usuarioIdTexto = usuario.FindFirstValue(ClaimTypes.NameIdentifier);
+
+    if (!Guid.TryParse(usuarioIdTexto, out var usuarioId))
+    {
+        return Results.Unauthorized();
+    }
+
+    var response = useCase.Ejecutar(
+        new AgregarExpedienteRequest(
+            request.Caratula,
+            usuarioId));
+
+        return Results.Created(
+            $"/expedientes/{response.Id}",
+            new { id = response.Id });
+    })
+.WithTags("Expedientes");
+
+app.MapGet("/auth/yo", [Authorize] (ClaimsPrincipal usuario) =>
+{
+    var id = usuario.FindFirstValue(ClaimTypes.NameIdentifier);
+
+    return Results.Ok(new { usuarioId = id });
+})
+.WithTags("Autenticación");
+
+app.MapPost("/auth/registro", (
+    RegistrarUsuarioUseCase useCase,
+    RegistrarUsuarioRequest request) =>
+{
+    var response = useCase.Ejecutar(request);
+
+    return Results.Created(
+        $"/usuarios/{response.UsuarioId}",
+        new { id = response.UsuarioId });
+})
+.WithTags("Autenticación");
+
+
+app.MapPost("/auth/login", (
+    LoginUseCase useCase,
+    LoginRequest request) =>
+{
+    var token = useCase.Ejecutar(
+        request.Correo,
+        request.Contrasena);
+
+    return Results.Ok(new { token });
+})
+.WithTags("Autenticación");
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
+try
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    using var scope = app.Services.CreateScope();
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
-
-using (var scope = app.Services.CreateScope())
-{
     var context = scope.ServiceProvider.GetRequiredService<SgeContext>();
-
     context.Database.EnsureCreated();
-}
-app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+    var repositorioUsuarios =
+        scope.ServiceProvider.GetRequiredService<IRepositorioUsuarios>();
+
+    var hashService =
+        scope.ServiceProvider.GetRequiredService<IHashService>();
+
+    if (repositorioUsuarios.ObtenerPorCorreo("admin@sge.com") == null)
+    {
+        var admin = new Usuario(
+            "Administrador",
+            "admin@sge.com",
+            hashService.GenerarHash("admin123")
+        );
+
+        admin.ConvertirEnAdministrador();
+
+        repositorioUsuarios.Agregar(admin);
+        context.SaveChanges();
+
+        Console.WriteLine("Administrador semilla creado.");
+    }
+}
+catch (Exception ex)
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    Console.WriteLine("ERROR AL INICIAR: " + ex);
+    throw;
 }
+app.UseAuthentication();
+app.UseAuthorization();
 
+app.Run();
+public record LoginRequest(
+    string Correo,
+    string Contrasena);
+
+public record CrearExpedienteRequest(string Caratula);

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿using SGE.Dominio.Usuarios;
 using SGE.Aplicacion.Autorizacion;
 using SGE.Aplicacion.Expedientes;
 

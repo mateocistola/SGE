@@ -10,6 +10,10 @@ using SGE.Infraestructura.Expedientes;
 using SGE.Infraestructura.Tramites;
 using SGE.Aplicacion.Usuarios;
 using SGE.Infraestructura.Usuarios;
+using SGE.Infraestructura.Seguridad;
+
+
+builder.Services.AddScoped<IHashService, HashService>();
 
 IRepositorioUsuarios usuarioRepository =
     new RepositorioUsuariosTxt("Datos/usuarios.txt");

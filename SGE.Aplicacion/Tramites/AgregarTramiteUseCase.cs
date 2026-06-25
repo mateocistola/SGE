@@ -1,11 +1,7 @@
 ﻿using SGE.Aplicacion.Autorizacion;
 using SGE.Aplicacion.Expedientes;
-using SGE.Dominio.Expedientes;
 using SGE.Dominio.Tramites;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Linq;
+using SGE.Dominio.Usuarios;
 
 namespace SGE.Aplicacion.Tramites;
 
