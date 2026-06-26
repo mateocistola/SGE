@@ -8,6 +8,7 @@ using SGE.Aplicacion.Expedientes;
 using SGE.Aplicacion.Tramites;
 using SGE.Aplicacion.Usuarios;
 using SGE.Dominio.Expedientes;
+using SGE.Dominio.Tramites;
 using SGE.Dominio.Usuarios;
 using SGE.Infraestructura.Expedientes;
 using SGE.Infraestructura.Persistencia;
@@ -65,6 +66,9 @@ builder.Services.AddScoped<ModificarCaratulaExpedienteUseCase>();
 builder.Services.AddScoped<ListarExpedientesUseCase>();
 builder.Services.AddScoped<EliminarExpedienteUseCase>();
 builder.Services.AddScoped<CambiarEstadoExpedienteUseCase>();
+builder.Services.AddScoped<ListarTramitesPorExpedienteUseCase>();
+builder.Services.AddScoped<ModificarTramiteUseCase>();
+builder.Services.AddScoped<EliminarTramiteUseCase>();
 
 var app = builder.Build();
 
@@ -205,6 +209,104 @@ app.MapPut("/expedientes/{id:guid}/caratula", [Authorize] (
 })
 .WithTags("Expedientes");
 
+app.MapDelete("/tramites/{id:guid}", [Authorize] (
+    Guid id,
+    EliminarTramiteUseCase useCase,
+    ClaimsPrincipal usuario) =>
+{
+    var usuarioIdTexto = usuario.FindFirstValue(ClaimTypes.NameIdentifier);
+
+    if (!Guid.TryParse(usuarioIdTexto, out var usuarioId))
+    {
+        return Results.Unauthorized();
+    }
+
+    var response = useCase.Ejecutar(
+        new EliminarTramiteRequest
+        {
+            TramiteId = id,
+            UsuarioId = usuarioId
+        });
+
+    return Results.Ok(response);
+})
+.WithTags("Trámites");
+
+app.MapPut("/tramites/{id:guid}", [Authorize] (
+    Guid id,
+    ModificarTramiteUseCase useCase,
+    ModificarTramiteWebRequest request,
+    ClaimsPrincipal usuario) =>
+{
+    var usuarioIdTexto = usuario.FindFirstValue(ClaimTypes.NameIdentifier);
+
+    if (!Guid.TryParse(usuarioIdTexto, out var usuarioId))
+    {
+        return Results.Unauthorized();
+    }
+
+    var response = useCase.Ejecutar(
+        new ModificarTramiteRequest
+        {
+            TramiteId = id,
+            Contenido = request.Contenido,
+            UsuarioId = usuarioId
+        });
+
+    return Results.Ok(response);
+})
+.WithTags("Trámites");
+
+app.MapGet("/expedientes/{id:guid}/tramites", [Authorize] (
+    Guid id,
+    ListarTramitesPorExpedienteUseCase useCase,
+    ClaimsPrincipal usuario) =>
+{
+    var usuarioIdTexto = usuario.FindFirstValue(ClaimTypes.NameIdentifier);
+
+    if (!Guid.TryParse(usuarioIdTexto, out var usuarioId))
+    {
+        return Results.Unauthorized();
+    }
+
+    var response = useCase.Ejecutar(
+        new ListarTramitesRequest
+        {
+            ExpedienteId = id,
+            UsuarioId = usuarioId
+        });
+
+    return Results.Ok(response);
+})
+.WithTags("Trámites");
+
+app.MapPost("/tramites", [Authorize] (
+    AgregarTramiteUseCase useCase,
+    CrearTramiteRequest request,
+    ClaimsPrincipal usuario) =>
+{
+    var usuarioIdTexto = usuario.FindFirstValue(ClaimTypes.NameIdentifier);
+
+    if (!Guid.TryParse(usuarioIdTexto, out var usuarioId))
+    {
+        return Results.Unauthorized();
+    }
+
+    var response = useCase.Ejecutar(
+        new AgregarTramiteRequest
+        {
+            ExpedienteId = request.ExpedienteId,
+            Etiqueta = request.Etiqueta,
+            Contenido = request.Contenido,
+            UsuarioId = usuarioId
+        });
+
+    return Results.Created(
+        $"/tramites/{response.TramiteId}",
+        response);
+})
+.WithTags("Trámites");
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
@@ -253,3 +355,8 @@ public record LoginRequest(
 public record CrearExpedienteRequest(string Caratula);
 public record ModificarCaratulaRequest(string NuevaCaratula);
 public record CambiarEstadoRequest(EstadoExpediente NuevoEstado);
+public record CrearTramiteRequest(
+    Guid ExpedienteId,
+    EtiquetaTramite Etiqueta,
+    string? Contenido);
+public record ModificarTramiteWebRequest(string Contenido);
