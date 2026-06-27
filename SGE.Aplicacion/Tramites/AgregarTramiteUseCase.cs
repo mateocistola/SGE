@@ -2,6 +2,7 @@
 using SGE.Aplicacion.Expedientes;
 using SGE.Dominio.Tramites;
 using SGE.Dominio.Usuarios;
+using SGE.Aplicacion.Comun;
 
 namespace SGE.Aplicacion.Tramites;
 
@@ -41,11 +42,10 @@ public class AgregarTramiteUseCase
         var expediente = _expedienteRepository.ObtenerPorId(request.ExpedienteId);
         if (expediente == null)
         {
-            throw new Exception("No existe un expediente con ese id.");
+            throw new EntidadNoEncontradaException("No existe un expediente con ese id.");
         }
         var tramite = new Tramite(request.ExpedienteId, request.Etiqueta, new ContenidoTramite(request.Contenido), request.UsuarioId);
         _tramiteRepository.Agregar(tramite);
-        var tramites = _tramiteRepository.ObtenerPorExpedienteId(request.ExpedienteId);
         _actualizacionEstadoService.Actualizar(request.ExpedienteId, request.UsuarioId);
         _unidadDeTrabajo.Guardar();
         return new AgregarTramiteResponse

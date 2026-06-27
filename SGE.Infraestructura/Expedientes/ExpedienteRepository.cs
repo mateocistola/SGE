@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using SGE.Aplicacion.Expedientes;
 using SGE.Dominio.Expedientes;
 using SGE.Infraestructura.Persistencia;

@@ -2,6 +2,7 @@ using SGE.Aplicacion.Autorizacion;
 using SGE.Aplicacion.Comun;
 using SGE.Dominio.Usuarios;
 
+
 namespace SGE.Aplicacion.Usuarios;
 
 public class ModificarPermisosUsuarioUseCase

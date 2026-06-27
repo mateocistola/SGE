@@ -1,6 +1,5 @@
 using System.Security.Cryptography;
 using System.Text;
-using SGE.Aplicacion.Usuarios;
 
 namespace SGE.Infraestructura.Seguridad;
 

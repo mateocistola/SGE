@@ -15,7 +15,7 @@ using SGE.Infraestructura.Persistencia;
 using SGE.Infraestructura.Seguridad;
 using SGE.Infraestructura.Tramites;
 using SGE.Infraestructura.Usuarios;
-using Microsoft.AspNetCore.Diagnostics;
+using SGE.Aplicacion.Comun;
 using SGE.WebApi;
 using System.Security.Claims;
 using System.Text;
@@ -174,14 +174,6 @@ app.MapDelete("/expedientes/{id:guid}", [Authorize] (
     return Results.Ok(response);
 })
 .WithTags("Expedientes");
-
-app.MapGet("/auth/yo", [Authorize] (ClaimsPrincipal usuario) =>
-{
-    var id = usuario.FindFirstValue(ClaimTypes.NameIdentifier);
-
-    return Results.Ok(new { usuarioId = id });
-})
-.WithTags("Autenticación");
 
 app.MapPost("/auth/registro", (
     RegistrarUsuarioUseCase useCase,
@@ -453,8 +445,6 @@ try
 
         repositorioUsuarios.Agregar(admin);
         context.SaveChanges();
-
-        Console.WriteLine("Administrador semilla creado.");
     }
     if (repositorioUsuarios.ObtenerPorCorreo("usuario1@sge.com") == null)
     {
@@ -486,6 +476,7 @@ try
         context.SaveChanges();
     }
 }
+
 catch (Exception ex)
 {
     Console.WriteLine("ERROR AL INICIAR: " + ex);
@@ -503,7 +494,7 @@ public record CambiarEstadoRequest(EstadoExpediente NuevoEstado);
 public record CrearTramiteRequest(
     Guid ExpedienteId,
     EtiquetaTramite Etiqueta,
-    string? Contenido);
+    string Contenido);
 public record ModificarTramiteWebRequest(string Contenido);
 public record ModificarMisDatosWebRequest(
     string Nombre,

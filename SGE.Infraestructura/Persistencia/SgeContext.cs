@@ -47,6 +47,14 @@ public class SgeContext : DbContext
                 .IsRequired();
         });
 
+        modelBuilder.Entity<PermisoUsuario>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+
+            entity.Property(x => x.Permiso)
+                .HasConversion<int>();
+        });
+
         modelBuilder.Entity<Usuario>(entity =>
         {
             entity.HasKey(x => x.Id);
@@ -62,6 +70,11 @@ public class SgeContext : DbContext
 
             entity.Property(x => x.ContrasenaHash)
                 .IsRequired();
+
+            entity.HasMany(x => x.Permisos)
+                .WithOne()
+                .HasForeignKey("UsuarioId")
+                .OnDelete(DeleteBehavior.Cascade);
 
             entity.Property(x => x.EsAdministrador)
                 .IsRequired();

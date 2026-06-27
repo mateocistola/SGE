@@ -1,6 +1,6 @@
 ﻿using SGE.Dominio.Usuarios;
 using SGE.Aplicacion.Autorizacion;
-using SGE.Aplicacion.Expedientes;
+using SGE.Aplicacion.Comun;
 
 namespace SGE.Aplicacion.Tramites
 {
@@ -8,18 +8,16 @@ namespace SGE.Aplicacion.Tramites
     {
         private readonly ITramiteRepository _tramiteRepository;
 
-        private readonly IExpedienteRepository _expedienteRepository;
 
         private readonly IAutorizacionService _autorizacionService;
 
         private readonly ActualizacionEstadoExpedienteService _actualizacionEstadoService;
         private readonly IUnidadDeTrabajo _unidadDeTrabajo;
 
-        public EliminarTramiteUseCase(ITramiteRepository tramiteRepository, IExpedienteRepository expedienteRepository, IAutorizacionService autorizacionService, ActualizacionEstadoExpedienteService actualizacionEstadoService, IUnidadDeTrabajo unidadDeTrabajo)
+        public EliminarTramiteUseCase(ITramiteRepository tramiteRepository, IAutorizacionService autorizacionService, ActualizacionEstadoExpedienteService actualizacionEstadoService, IUnidadDeTrabajo unidadDeTrabajo)
         {
             _tramiteRepository = tramiteRepository;
 
-            _expedienteRepository = expedienteRepository;
 
             _autorizacionService = autorizacionService;
 
@@ -37,7 +35,7 @@ namespace SGE.Aplicacion.Tramites
             var tramite = _tramiteRepository.ObtenerPorId(request.TramiteId);
             if (tramite is null)
             {
-                throw new Exception("No existe un trámite con ese Id.");
+                throw new EntidadNoEncontradaException("No existe un trámite con ese Id.");
             }
             _tramiteRepository.Eliminar(tramite.Id);
             _actualizacionEstadoService.Actualizar(tramite.ExpedienteId, request.UsuarioId);

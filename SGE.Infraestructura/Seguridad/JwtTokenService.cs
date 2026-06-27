@@ -2,14 +2,12 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using SGE.Aplicacion.Usuarios;
 
 namespace SGE.Infraestructura.Seguridad;
 
 public class JwtTokenService : ITokenService
 {
-    private const string Clave =
-        "clave-super-secreta-sge-tp2-2026-minimo-32-caracteres";
+    private const string Clave = "clave-super-secreta-sge-tp2-2026-minimo-32-caracteres";
 
     public string GenerarToken(Guid usuarioId)
     {

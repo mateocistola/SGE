@@ -2,7 +2,7 @@
 
 ## Requisitos
 
-- .NET 10
+- .NET 10 SDK
 - SQLite
 
 ## Usuarios semilla
@@ -32,20 +32,23 @@ Permisos:
 
 ## Orden recomendado de prueba
 
-1. Iniciar sesión con el administrador (`POST /login`).
-2. Listar usuarios (`GET /usuarios`).
-3. Crear un expediente (`POST /expedientes`).
-4. Listar expedientes (`GET /expedientes`).
-5. Obtener un expediente por Id (`GET /expedientes/{id}`).
-6. Modificar la carátula (`PUT /expedientes/{id}/caratula`).
-7. Cambiar el estado (`PUT /expedientes/{id}/estado`).
-8. Agregar un trámite (`POST /tramites`).
-9. Listar los trámites del expediente (`GET /expedientes/{id}/tramites`).
-10. Modificar un trámite (`PUT /tramites/{id}`).
-11. Eliminar un trámite (`DELETE /tramites/{id}`).
-12. Eliminar un expediente (`DELETE /expedientes/{id}`).
+1. Registrar un usuario (`POST /auth/registro`) *(opcional)*.
+2. Iniciar sesión como administrador (`POST /auth/login`).
+3. Listar usuarios (`GET /usuarios`).
+4. Modificar permisos de un usuario (`PUT /usuarios/{id}/permisos`).
+5. Iniciar sesión con el usuario al que se le asignaron permisos (`POST /auth/login`).
+6. Crear un expediente (`POST /expedientes`).
+7. Listar expedientes (`GET /expedientes`).
+8. Obtener un expediente por Id (`GET /expedientes/{id}`).
+9. Modificar la carátula (`PUT /expedientes/{id}/caratula`).
+10. Cambiar el estado (`PUT /expedientes/{id}/estado`).
+11. Agregar un trámite (`POST /tramites`).
+12. Listar los trámites del expediente (`GET /expedientes/{id}/tramites`).
+13. Modificar un trámite (`PUT /tramites/{id}`).
+14. Eliminar un trámite (`DELETE /tramites/{id}`).
+15. Eliminar un expediente (`DELETE /expedientes/{id}`).
 
 ## Notas
 
-- Todos los endpoints protegidos requieren un JWT obtenido mediante el login.
-- El UserId se obtiene del token JWT y no se envía en el cuerpo de las solicitudes.
+- Todos los endpoints protegidos requieren un token JWT obtenido mediante `POST /auth/login`.
+- El UserId se obtiene del token JWT y nunca se envía en el cuerpo de las solicitudes.

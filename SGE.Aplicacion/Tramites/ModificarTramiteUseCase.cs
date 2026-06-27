@@ -1,7 +1,7 @@
 ﻿using SGE.Dominio.Usuarios;
 using SGE.Dominio.Tramites;
 using SGE.Aplicacion.Autorizacion;
-using SGE.Aplicacion.Expedientes;
+using SGE.Aplicacion.Comun;
 
 namespace SGE.Aplicacion.Tramites
 {
@@ -9,21 +9,15 @@ namespace SGE.Aplicacion.Tramites
     {
         private readonly ITramiteRepository _tramiteRepository;
 
-        private readonly IExpedienteRepository _expedienteRepository;
-
         private readonly IAutorizacionService _autorizacionService;
-
-        private readonly ActualizacionEstadoExpedienteService _actualizacionEstadoService;    
+   
         private readonly IUnidadDeTrabajo _unidadDeTrabajo;
-        public ModificarTramiteUseCase(ITramiteRepository tramiteRepository, IExpedienteRepository expedienteRepository, IAutorizacionService autorizacionService, ActualizacionEstadoExpedienteService actualizacionEstadoService, IUnidadDeTrabajo unidadDeTrabajo)
+        public ModificarTramiteUseCase(ITramiteRepository tramiteRepository, IAutorizacionService autorizacionService, IUnidadDeTrabajo unidadDeTrabajo)
         {
             _tramiteRepository = tramiteRepository;
 
-            _expedienteRepository = expedienteRepository;
-
             _autorizacionService = autorizacionService;
 
-            _actualizacionEstadoService = actualizacionEstadoService;    
             _unidadDeTrabajo = unidadDeTrabajo;
         }
 
@@ -37,7 +31,7 @@ namespace SGE.Aplicacion.Tramites
             var tramite = _tramiteRepository.ObtenerPorId(request.TramiteId);
             if (tramite is null)
             {
-                throw new Exception("No existe un trámite con ese Id.");
+                throw new EntidadNoEncontradaException("No existe un trámite con ese Id.");
             }
             tramite.ModificarContenido(new ContenidoTramite(request.Contenido), request.UsuarioId);
             _tramiteRepository.Modificar(tramite);

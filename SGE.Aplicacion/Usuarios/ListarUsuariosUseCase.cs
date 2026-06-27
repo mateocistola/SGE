@@ -1,5 +1,4 @@
 ﻿using SGE.Aplicacion.Autorizacion;
-using SGE.Dominio.Usuarios;
 
 namespace SGE.Aplicacion.Usuarios;
 
@@ -33,7 +32,7 @@ public class ListarUsuariosUseCase
                 u.Nombre,
                 u.CorreoElectronico,
                 u.EsAdministrador,
-                u.Permisos));
+                u.Permisos.Select(p => p.Permiso)));
 
         return new ListarUsuariosResponse(response);
     }

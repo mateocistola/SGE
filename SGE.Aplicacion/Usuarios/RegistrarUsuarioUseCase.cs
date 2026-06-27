@@ -1,5 +1,5 @@
 using SGE.Dominio.Usuarios;
-
+using SGE.Aplicacion.Comun;
 namespace SGE.Aplicacion.Usuarios;
 
 public class RegistrarUsuarioUseCase

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SGE.Aplicacion.Tramites
+﻿namespace SGE.Aplicacion.Tramites
 {
     public record AgregarTramiteResponse
     {

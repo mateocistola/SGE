@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-
 using SGE.Dominio.Comun;
 using SGE.Aplicacion.Autorizacion;
 using SGE.Aplicacion.Comun;
@@ -39,6 +38,7 @@ public class ManejadorDeExcepcionesGlobales : IExceptionHandler
         }
         else
         {
+            Console.WriteLine(exception.ToString());
             problemDetails.Title = "Error interno del servidor";
             problemDetails.Status = StatusCodes.Status500InternalServerError;
             problemDetails.Detail = "Ha ocurrido un error inesperado.";

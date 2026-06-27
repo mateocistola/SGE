@@ -4,14 +4,21 @@ namespace SGE.Dominio.Usuarios;
 
 public class Usuario
 {
-    public Guid Id { get; private set; }
-    public string Nombre { get; private set; }
-    public string CorreoElectronico { get; private set; }
-    public string ContrasenaHash { get; private set; }
-    public bool EsAdministrador { get; private set; }
+protected Usuario()
+{
+}
 
-    private readonly List<Permiso> _permisos = [];
-    public IReadOnlyCollection<Permiso> Permisos => _permisos.AsReadOnly();
+public Guid Id { get; private set; }
+
+public string Nombre { get; private set; } = string.Empty;
+
+public string CorreoElectronico { get; private set; } = string.Empty;
+
+public string ContrasenaHash { get; private set; } = string.Empty;
+
+public bool EsAdministrador { get; private set; }
+
+public List<PermisoUsuario> Permisos { get; private set; } = [];
 
     public Usuario(
         string nombre,
@@ -34,30 +41,6 @@ public class Usuario
         EsAdministrador = false;
     }
 
-    public static Usuario Reconstruir(
-        Guid id,
-        string nombre,
-        string correoElectronico,
-        string contrasenaHash,
-        bool esAdministrador,
-        IEnumerable<Permiso> permisos)
-    {
-        var usuario = new Usuario(
-            nombre,
-            correoElectronico,
-            contrasenaHash);
-
-        usuario.Id = id;
-        usuario.EsAdministrador = esAdministrador;
-
-        foreach (var permiso in permisos)
-        {
-            usuario._permisos.Add(permiso);
-        }
-
-        return usuario;
-    }
-
     public void CambiarNombre(string nombre)
     {
         if (string.IsNullOrWhiteSpace(nombre))
@@ -74,23 +57,28 @@ public class Usuario
         ContrasenaHash = hash;
     }
 
-    public void AsignarPermiso(Permiso permiso)
-    {
-        if (!_permisos.Contains(permiso))
-            _permisos.Add(permiso);
-    }
+public void AsignarPermiso(Permiso permiso)
+{
+    if (!Permisos.Any(p => p.Permiso == permiso))
+        Permisos.Add(new PermisoUsuario(permiso));
+}
 
     public void QuitarPermiso(Permiso permiso)
     {
-        _permisos.Remove(permiso);
+        var existente = Permisos.FirstOrDefault(p => p.Permiso == permiso);
+
+        if (existente != null)
+            Permisos.Remove(existente);
+    }
+
+    public bool PoseeElPermiso(Permiso permiso)
+    {
+        return EsAdministrador ||
+            Permisos.Any(p => p.Permiso == permiso);
     }
 
     public void ConvertirEnAdministrador()
     {
         EsAdministrador = true;
-    }
-    public bool PoseeElPermiso(Permiso permiso)
-    {
-        return EsAdministrador || _permisos.Contains(permiso);
     }
 }

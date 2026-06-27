@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using SGE.Aplicacion.Expedientes;
+﻿using SGE.Aplicacion.Expedientes;
 
 namespace SGE.Aplicacion.Tramites
 {

@@ -1,7 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using SGE.Aplicacion.Usuarios;
 using SGE.Dominio.Usuarios;
 using SGE.Infraestructura.Persistencia;
+using Microsoft.EntityFrameworkCore;
 
 namespace SGE.Infraestructura.Usuarios;
 
@@ -37,17 +37,21 @@ public class UsuarioRepository : IRepositorioUsuarios
     public Usuario? ObtenerPorId(Guid id)
     {
         return _context.Usuarios
+            .Include(u => u.Permisos)
             .FirstOrDefault(u => u.Id == id);
     }
 
     public Usuario? ObtenerPorCorreo(string correo)
     {
         return _context.Usuarios
+            .Include(u => u.Permisos)
             .FirstOrDefault(u => u.CorreoElectronico == correo);
     }
 
     public IEnumerable<Usuario> ObtenerTodos()
     {
-        return _context.Usuarios.ToList();
+        return _context.Usuarios
+            .Include(u => u.Permisos)
+            .ToList();
     }
 }
