@@ -15,13 +15,13 @@ using SGE.Infraestructura.Persistencia;
 using SGE.Infraestructura.Seguridad;
 using SGE.Infraestructura.Tramites;
 using SGE.Infraestructura.Usuarios;
+using Microsoft.AspNetCore.Diagnostics;
+using SGE.WebApi;
 using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddScoped<IAutorizacionService, AutorizacionService>();
-builder.Services.AddScoped<AgregarExpedienteUseCase>();
 builder.Services.AddScoped<AgregarTramiteUseCase>();
 builder.Services.AddScoped<ActualizacionEstadoExpedienteService>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
@@ -47,6 +47,9 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddProblemDetails();
+
+builder.Services.AddExceptionHandler<ManejadorDeExcepcionesGlobales>();
 
 builder.Services.AddOpenApi();
 
@@ -76,6 +79,8 @@ builder.Services.AddScoped<ListarUsuariosUseCase>();
 builder.Services.AddScoped<ObtenerExpedienteUseCase>();
 
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {
@@ -428,6 +433,8 @@ try
     var context = scope.ServiceProvider.GetRequiredService<SgeContext>();
     context.Database.EnsureCreated();
 
+    context.Database.ExecuteSqlRaw("PRAGMA journal_mode=DELETE;");
+
     var repositorioUsuarios =
         scope.ServiceProvider.GetRequiredService<IRepositorioUsuarios>();
 
@@ -448,6 +455,35 @@ try
         context.SaveChanges();
 
         Console.WriteLine("Administrador semilla creado.");
+    }
+    if (repositorioUsuarios.ObtenerPorCorreo("usuario1@sge.com") == null)
+    {
+        var usuario1 = new Usuario(
+            "Usuario Uno",
+            "usuario1@sge.com",
+            hashService.GenerarHash("123456")
+        );
+
+        usuario1.AsignarPermiso(Permiso.ExpedienteAlta);
+        usuario1.AsignarPermiso(Permiso.TramiteAlta);
+
+        repositorioUsuarios.Agregar(usuario1);
+        context.SaveChanges();
+    }
+
+    if (repositorioUsuarios.ObtenerPorCorreo("usuario2@sge.com") == null)
+    {
+        var usuario2 = new Usuario(
+            "Usuario Dos",
+            "usuario2@sge.com",
+            hashService.GenerarHash("123456")
+        );
+
+        usuario2.AsignarPermiso(Permiso.ExpedienteModificacion);
+        usuario2.AsignarPermiso(Permiso.TramiteModificacion);
+
+        repositorioUsuarios.Agregar(usuario2);
+        context.SaveChanges();
     }
 }
 catch (Exception ex)

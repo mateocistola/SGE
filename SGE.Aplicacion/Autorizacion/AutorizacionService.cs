@@ -19,6 +19,14 @@ public class AutorizacionService : IAutorizacionService
         if (usuario == null)
             return false;
 
+        // Regla de implicancia:
+        // Si tiene ExpedienteBaja, también tiene TramiteBaja.
+        if (permiso == Permiso.TramiteBaja &&
+            usuario.PoseeElPermiso(Permiso.ExpedienteBaja))
+        {
+            return true;
+        }
+
         return usuario.PoseeElPermiso(permiso);
     }
 }
