@@ -69,6 +69,11 @@ builder.Services.AddScoped<CambiarEstadoExpedienteUseCase>();
 builder.Services.AddScoped<ListarTramitesPorExpedienteUseCase>();
 builder.Services.AddScoped<ModificarTramiteUseCase>();
 builder.Services.AddScoped<EliminarTramiteUseCase>();
+builder.Services.AddScoped<ModificarMisDatosUseCase>();
+builder.Services.AddScoped<EliminarUsuarioUseCase>();
+builder.Services.AddScoped<ModificarPermisosUsuarioUseCase>();
+builder.Services.AddScoped<ListarUsuariosUseCase>();
+builder.Services.AddScoped<ObtenerExpedienteUseCase>();
 
 var app = builder.Build();
 
@@ -99,6 +104,17 @@ app.MapPost("/expedientes", [Authorize] (
             $"/expedientes/{response.Id}",
             new { id = response.Id });
     })
+.WithTags("Expedientes");
+
+app.MapGet("/expedientes/{id:guid}", [Authorize] (
+    Guid id,
+    ObtenerExpedienteUseCase useCase) =>
+{
+    var response = useCase.Ejecutar(
+        new ObtenerExpedienteRequest(id));
+
+    return Results.Ok(response);
+})
 .WithTags("Expedientes");
 
 app.MapPut("/expedientes/{id:guid}/estado", [Authorize] (
@@ -307,6 +323,99 @@ app.MapPost("/tramites", [Authorize] (
 })
 .WithTags("Trámites");
 
+app.MapGet("/usuarios", [Authorize] (
+    ListarUsuariosUseCase useCase,
+    ClaimsPrincipal usuario) =>
+{
+    var usuarioIdTexto = usuario.FindFirstValue(ClaimTypes.NameIdentifier);
+
+    if (!Guid.TryParse(usuarioIdTexto, out var usuarioId))
+    {
+        return Results.Unauthorized();
+    }
+
+    var response = useCase.Ejecutar(
+        new ListarUsuariosRequest
+        {
+            UsuarioAdministradorId = usuarioId
+        });
+
+    return Results.Ok(response);
+})
+.WithTags("Usuarios");
+
+app.MapPut("/usuarios/me", [Authorize] (
+    ModificarMisDatosUseCase useCase,
+    ModificarMisDatosWebRequest request,
+    ClaimsPrincipal usuario) =>
+{
+    var usuarioIdTexto = usuario.FindFirstValue(ClaimTypes.NameIdentifier);
+
+    if (!Guid.TryParse(usuarioIdTexto, out var usuarioId))
+    {
+        return Results.Unauthorized();
+    }
+
+    var response = useCase.Ejecutar(
+        new ModificarMisDatosRequest
+        {
+            UsuarioId = usuarioId,
+            Nombre = request.Nombre,
+            NuevaContrasena = request.NuevaContrasena
+        });
+
+    return Results.Ok(response);
+})
+.WithTags("Usuarios");
+
+app.MapPut("/usuarios/{id:guid}/permisos", [Authorize] (
+    Guid id,
+    ModificarPermisosUsuarioUseCase useCase,
+    ModificarPermisosWebRequest request,
+    ClaimsPrincipal usuario) =>
+{
+    var usuarioIdTexto = usuario.FindFirstValue(ClaimTypes.NameIdentifier);
+
+    if (!Guid.TryParse(usuarioIdTexto, out var administradorId))
+    {
+        return Results.Unauthorized();
+    }
+
+    var response = useCase.Ejecutar(
+        new ModificarPermisosUsuarioRequest
+        {
+            UsuarioId = id,
+            UsuarioAdministradorId = administradorId,
+            Permisos = request.Permisos
+        });
+
+    return Results.Ok(response);
+})
+.WithTags("Usuarios");
+
+app.MapDelete("/usuarios/{id:guid}", [Authorize] (
+    Guid id,
+    EliminarUsuarioUseCase useCase,
+    ClaimsPrincipal usuario) =>
+{
+    var usuarioIdTexto = usuario.FindFirstValue(ClaimTypes.NameIdentifier);
+
+    if (!Guid.TryParse(usuarioIdTexto, out var administradorId))
+    {
+        return Results.Unauthorized();
+    }
+
+    var response = useCase.Ejecutar(
+        new EliminarUsuarioRequest
+        {
+            UsuarioId = id,
+            UsuarioAdministradorId = administradorId
+        });
+
+    return Results.Ok(response);
+})
+.WithTags("Usuarios");
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
@@ -360,3 +469,8 @@ public record CrearTramiteRequest(
     EtiquetaTramite Etiqueta,
     string? Contenido);
 public record ModificarTramiteWebRequest(string Contenido);
+public record ModificarMisDatosWebRequest(
+    string Nombre,
+    string NuevaContrasena);
+public record ModificarPermisosWebRequest(
+    IEnumerable<Permiso> Permisos);
