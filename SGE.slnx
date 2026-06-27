@@ -1,6 +1,9 @@
 <Solution>
-  <Project Path="SGE.Dominio/SGE.Dominio.csproj" />
+  <Folder Name="/Elementos de la solución/">
+    <File Path="README.md" />
+  </Folder>
   <Project Path="SGE.Aplicacion/SGE.Aplicacion.csproj" />
+  <Project Path="SGE.Dominio/SGE.Dominio.csproj" />
   <Project Path="SGE.Infraestructura/SGE.Infraestructura.csproj" />
   <Project Path="SGE.WebApi/SGE.WebApi.csproj" />
 </Solution>
